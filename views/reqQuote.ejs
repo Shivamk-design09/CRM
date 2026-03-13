@@ -8,19 +8,19 @@
   <body>
     <form action="/profile" method="post">
       <label for="name">Name</label>
-     <input type="text" name="name" id="name" value="<%= user.name %>" />
+      <input type="text" name="name" id="name" value="<%= user.name %>" />
 
       <label for="email">Email</label>
       <input type="text" name="email" id="email" readonly value="" />
 
-      <label for="password">Password</label>
-      <input type="password" name="password" id="password" />
-
-      <label for="Confpassword">Confirm Password</label>
-      <input type="password" name="confPassword" id="Confpassword" />
+      <label for="company">Confirm Password</label>
+      <input type="password" name="company" id="company" />
 
       <label for="contact">Contact</label>
       <input type="text" name="contact" id="contact" />
+
+      <input type="checkbox" id="webDevelopmen">
+      <label for="webDevelopmen">web Developmen</label>
 
       <button id="submitbtn" type="submit">submit</button>
     </form>
