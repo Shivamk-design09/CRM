@@ -3,26 +3,27 @@ const mongoose = require('mongoose')
 const app = express()
 const User = require('./models/usermodel')
 const bodyparser = require('body-parser')
-const session = require("express-session")
-
-
+const session = require('express-session')
+const fs = require('fs')
+const ejs = require('ejs')
 // MongoDB connections
 mongoose.connect('mongodb://localhost:27017/CRM')
 
-
-
 app.use(bodyparser.urlencoded({ extended: true }))
 app.set('view engine', 'ejs')
-app.use(express.static("public"))
-app.use(session({
-  secret: "secretkey",
-  resave: false,
-  saveUninitialized: true
-}))
+app.use(express.static('public'))
+app.use(
+  session({
+    secret: 'secretkey',
+    resave: false,
+    saveUninitialized: true,
+  }),
+)
 
-
-app.get("/dashboard", async (req, res) => {
-  res.render("layout", { body: require("fs").readFileSync("./views/dashboard.ejs", "utf8") })
+app.get('/dashboard', async (req, res) => {
+  res.render('layout', {
+    body: require('fs').readFileSync('./views/dashboard.ejs', 'utf8'),
+  })
 })
 app.get('/', (req, res) => {
   res.render('home')
@@ -46,13 +47,10 @@ app.post('/login', async (req, res) => {
     }
     req.session.userId = user._id
     res.redirect('/dashboard')
-
   } catch (err) {
     console.log('Error', err)
   }
 })
-
-
 
 app.get('/register', (req, res) => {
   res.render('register')
@@ -72,7 +70,7 @@ app.post('/register', async (req, res) => {
       `)
     }
   } catch (err) {
-    console.log("Error", err)
+    console.log('Error', err)
   }
 
   if (password !== confPassword) {
@@ -88,35 +86,58 @@ app.post('/register', async (req, res) => {
     })
     await newUser.save()
   }
-  res.redirect("/login")
+  res.redirect('/login')
 })
 
-app.get("/profile",async (req, res) => {
+app.get('/profile', async (req, res) => {
   const user = await User.findById(req.session.userId)
-  res.render("layout", {user,body:require("fs").readFileSync("./views/profile.ejs","utf-8")})
+
+  // console.log(user)
+  if (!user) {
+    return res.send("User not found or not logged in")
+  }
+
+  const profileBody = ejs.render(
+    fs.readFileSync('./views/profile.ejs', 'utf-8'),
+    { user }
+  )
+
+  res.render('layout', {
+    body: profileBody
+  })
 })
 
-
-
-app.get("/password", (req, res) => {
-  res.render("layout", { body: require("fs").readFileSync("./views/password.ejs", "utf8") })
+app.post("/profile", async (req, res) => {
+  const { name, email, contact, alternateEmail, address } = req.body
+  const userId = await User.findById(req.session.userId)
+  try {
+    const user = await User.findByIdAndUpdate({ userId }, { $set: { name: name, email: email, contact: contact, alternateEmail: alternateEmail, address: address } })
+  } catch (err) {
+    console.log("Error", err)
+  }
 })
 
-app.post("/password", async (req, res) => {
+app.get('/password', (req, res) => {
+  res.render('layout', {
+    body: require('fs').readFileSync('./views/password.ejs', 'utf8'),
+  })
+})
+
+app.post('/password', async (req, res) => {
   const { password, newpassword, confpassword } = req.body
   const userId = req.session.userId
   try {
     const user = await User.findById(userId)
     if (!user) {
-      return res.send("user not found")
+      return res.send('user not found')
     }
 
     if (newpassword !== confpassword) {
-      return res.send("passwod did not match")
+      return res.send('passwod did not match')
     }
 
     if (user.password !== password) {
-      return res.send("Password did not match")
+      return res.send('Password did not match')
     }
     user.password = newpassword
     await user.save()
@@ -127,13 +148,10 @@ app.post("/password", async (req, res) => {
           window.location.href="/password";
         </script>
       `)
-
   } catch (err) {
     console.log(err)
   }
-
 })
-
 
 //Forgot Password
 app.get('/forgotPassowrd', async (req, res) => {
@@ -161,46 +179,40 @@ app.post('/forgot', async (req, res) => {
   }
 })
 
-
 // now write the reset password route
-app.post("/reset", async (req, res) => {
+app.post('/reset', async (req, res) => {
   const { email, password } = req.body
   try {
-    await User.updateOne(
-      { email: email },
-      { $set: { password: password } }
-    )
-    res.send("Password Change successfully")
+    await User.updateOne({ email: email }, { $set: { password: password } })
+    res.send('Password Change successfully')
   } catch (err) {
-    res.send("Error", err)
+    res.send('Error', err)
   }
 })
 
-app.get("/changepassword", (req, res) => {
-  res.render("changepassword")
+app.get('/changepassword', (req, res) => {
+  res.render('changepassword')
 })
 
-app.post("/changePassword", async (req, res) => {
-
+app.post('/changePassword', async (req, res) => {
   const { password, newPassword, confPassword } = req.body
 
   const userId = req.session.userId
 
   try {
-
     const user = await User.findById(userId)
 
     if (!user) {
-      return res.send("User not found")
+      return res.send('User not found')
     }
 
     if (password === confPassword) {
-      return res.send("passwod did not match")
+      return res.send('passwod did not match')
     }
 
     // old password check
     if (user.password !== password) {
-      return res.send("Old password incorrect")
+      return res.send('Old password incorrect')
     }
 
     // update password
@@ -208,23 +220,18 @@ app.post("/changePassword", async (req, res) => {
 
     await user.save()
 
-    res.send("Password changed successfully")
-
+    res.send('Password changed successfully')
   } catch (err) {
     console.log(err)
-    res.send("Error changing password")
+    res.send('Error changing password')
   }
-
 })
 
-
-app.get("/reqQuote", (req, res) => {
-  res.render("layout", { body: require("fs").readFileSync("./views/reqQuote.ejs", "utf8") })
+app.get('/reqQuote', (req, res) => {
+  res.render('layout', {
+    body: require('fs').readFileSync('./views/reqQuote.ejs', 'utf8'),
+  })
 })
-
-
-
-
 
 app.listen(5000, () => {
   console.log('server is running on port 5000')
