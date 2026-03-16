@@ -6,21 +6,42 @@
     <title>Document</title>
   </head>
   <body>
-    <form action="/profile" method="post">
+    <form id="reqQuerry" action="/reqQuote" method="post">
       <label for="name">Name</label>
       <input type="text" name="name" id="name" value="<%= user.name %>" />
 
       <label for="email">Email</label>
-      <input type="text" name="email" id="email" readonly value="" />
+      <input
+        type="text"
+        name="email"
+        id="email"
+        readonly
+        value="<%= user.email %>"
+      />
 
-      <label for="company">Confirm Password</label>
-      <input type="password" name="company" id="company" />
+      <label for="company">Company</label>
+      <input type="text" name="company" />
 
       <label for="contact">Contact</label>
-      <input type="text" name="contact" id="contact" />
+      <input
+        type="text"
+        name="contact"
+        id="contact"
+        value="<%= user.contact %>"
+      />
 
-      <input type="checkbox" id="webDevelopmen">
-      <label for="webDevelopmen">web Developmen</label>
+      <input
+        type="checkbox"
+        name="webDevlopment"
+        id="webDevelopmen"
+        value="web development"
+      />
+      <label for="webDevelopmen">webDevelopmen</label>
+
+      <div id="query">
+        <label for="query"> Query</label>
+        <textarea name="query" id="query"></textarea>
+      </div>
 
       <button id="submitbtn" type="submit">submit</button>
     </form>

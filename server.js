@@ -57,7 +57,7 @@ app.get('/register', (req, res) => {
 })
 
 app.post('/register', async (req, res) => {
-  const { name, email, password, contact, confPassword, gender } = req.body
+  const { name, email, password, contact, confPassword, gender, alternateEmail } = req.body
 
   try {
     const existUser = await User.findOne({ email: email })
@@ -83,6 +83,7 @@ app.post('/register', async (req, res) => {
       password,
       contact,
       gender,
+      alternateEmail
     })
     await newUser.save()
   }
@@ -109,9 +110,16 @@ app.get('/profile', async (req, res) => {
 
 app.post("/profile", async (req, res) => {
   const { name, email, contact, alternateEmail, address } = req.body
-  const userId = await User.findById(req.session.userId)
   try {
-    const user = await User.findByIdAndUpdate({ userId }, { $set: { name: name, email: email, contact: contact, alternateEmail: alternateEmail, address: address } })
+    const user = await User.findByIdAndUpdate(req.session.userId, { $set: { name: name, email: email, contact: contact, alternateEmail: alternateEmail, address: address } }, { new: true })
+
+    res.redirect("/profile")
+    res.send(`
+        <script>
+          alert("User profile updated");
+          window.location.href="/register";
+        </script>
+      `)
   } catch (err) {
     console.log("Error", err)
   }
@@ -227,11 +235,87 @@ app.post('/changePassword', async (req, res) => {
   }
 })
 
-app.get('/reqQuote', (req, res) => {
-  res.render('layout', {
-    body: require('fs').readFileSync('./views/reqQuote.ejs', 'utf8'),
+app.get('/reqQuote', async (req, res) => {
+  const user = await User.findById(req.session.userId)
+
+  if (!user) {
+    return res.send("user did not found")
+  }
+
+  const profileBody = ejs.render(fs.readFileSync("./views/reqQuote.ejs", "utf-8"), { user })
+
+  res.render("layout", {
+    body: profileBody
   })
 })
+
+app.post("/reqQuote", async (req, res) => {
+  const { company, webDevlopment, query } = req.body
+  try {
+    await User.findByIdAndUpdate(req.session.userId, { $set: { company: company, webDevlopment: webDevlopment, query: query } }, { new: true })
+    res.redirect("/manageQuote")
+  } catch (err) {
+    console.log("Error", err)
+  }
+
+})
+
+app.get("/manageQuote", async (req, res) => {
+  const user = await User.findById(req.session.userId)
+  if (!user) {
+    return res.send("user did not found")
+  }
+  const profileBody = ejs.render(fs.readFileSync("./views/manageQuote.ejs", "utf-8"), { user })
+
+  res.render("layout", {
+    body: profileBody
+  })
+})
+
+app.get("/quteDetails", async (req, res) => {
+  const user = await User.findById(req.session.userId)
+  if (!user) {
+    return res.send("user did not found")
+  }
+  const profileBody = ejs.render(fs.readFileSync("./views/quoteDetails.ejs", "utf-8",), { user })
+  res.render("layout", { body: profileBody })
+})
+
+
+app.get("/ticket", async (req, res) => {
+  const user = await User.findById(req.session.userId)
+
+  if (!user) {
+    return res.send("user did not found")
+  }
+  const profileBody = ejs.render(fs.readFileSync("./views/ticket.ejs", "utf-8"), { user })
+
+  res.render("layout", { body: profileBody })
+})
+
+app.post("/ticket", async (req, res) => {
+  const { subject, tasktype, priority, description } = req.body
+  try {
+    await User.findByIdAndUpdate(req.session.userId, { $set: { subject: subject, tasktype: tasktype, priority: priority, description: description } }, { new: true })
+     res.send(`
+        <script>
+          alert(" Ticket raised");
+          window.location.href="/ticket";
+        </script>
+      `)
+      res.redirect("/ticket")
+  } catch (err) {
+    console.log("Error", err)
+  }
+})
+
+
+app.get("/adminlogin",(req,res)=>{
+  res.render("adminlogin")
+})
+
+
+
 
 app.listen(5000, () => {
   console.log('server is running on port 5000')
