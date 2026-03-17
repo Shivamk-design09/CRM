@@ -2,10 +2,24 @@ const express = require('express')
 const mongoose = require('mongoose')
 const app = express()
 const User = require('./models/usermodel')
+const Admin = require('./models/adminmodel')
 const bodyparser = require('body-parser')
 const session = require('express-session')
 const fs = require('fs')
 const ejs = require('ejs')
+const { MongoClient } = require("mongodb");
+
+const url = "mongodb://localhost:27017";
+const client = new MongoClient(url);
+
+let db 
+ 
+async function conntectdb (){
+  await client.connect()
+  db = client.db("CRM")
+}
+
+conntectdb()
 // MongoDB connections
 mongoose.connect('mongodb://localhost:27017/CRM')
 
@@ -297,22 +311,57 @@ app.post("/ticket", async (req, res) => {
   const { subject, tasktype, priority, description } = req.body
   try {
     await User.findByIdAndUpdate(req.session.userId, { $set: { subject: subject, tasktype: tasktype, priority: priority, description: description } }, { new: true })
-     res.send(`
+    res.send(`
         <script>
           alert(" Ticket raised");
           window.location.href="/ticket";
         </script>
       `)
-      res.redirect("/ticket")
+    res.redirect("/ticket")
   } catch (err) {
     console.log("Error", err)
   }
 })
 
 
-app.get("/adminlogin",(req,res)=>{
+app.get("/adminlogin", (req, res) => {
   res.render("adminlogin")
 })
+
+
+
+
+
+app.post("/adminlogin", async (req, res) => {
+  const { email, password } = req.body
+
+  try {
+    const admin = await db.collection("admin").findOne({ email })
+    if (!admin) {
+      return res.send("Admin not found")
+    }
+
+    if (admin.password !== password) {
+      return res.send("admin password did not match")
+    }
+
+    res.session.admin = admin._id
+    res.redirect("/admin/home")
+  } catch (err) {
+    console.log("Error", err)
+    res.status(500).send("server error")
+  }
+})
+
+
+
+
+app.get("/admin/Home",(req,res)=>{
+   res.render('adminlayout', {
+    body: require('fs').readFileSync('./views/dashboard.ejs', 'utf8'),
+  })
+})
+
 
 
 

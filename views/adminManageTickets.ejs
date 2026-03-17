@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ticket Support</title>
+  <link rel="stylesheet" href="/styles/viewTicket.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h2>Ticket Support</h2>
+    <span class="breadcrumb">Home > View Ticket</span>
+  </div>
+
+  <!-- Ticket List -->
+  <div class="ticket-box">
+
+    <% tickets.forEach(ticket => { %>
+      <div class="ticket">
+
+        <div class="ticket-left">
+          <h3><%= ticket.title %></h3>
+          <p>Ticket #<%= ticket.id %> • Created on <%= ticket.date %></p>
+        </div>
+
+        <div class="ticket-right">
+          <span class="status <%= ticket.status %>">
+            <%= ticket.status %>
+          </span>
+          <span class="search">🔍</span>
+        </div>
+
+      </div>
+    <% }) %>
+
+  </div>
+
+</div>
+
+</body>
+</html>
