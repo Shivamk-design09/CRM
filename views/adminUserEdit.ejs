@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <style>
+      body {
+        background-color: antiquewhite;
+      }
+
+      #profileinput {
+        width: 600px;
+        margin: auto;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 150px 40px 1fr;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .form-row label {
+        font-weight: bold;
+      }
+
+      .form-row input {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 100%;
+      }
+
+      .form-row textarea {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 100%;
+        height: 120px;
+      }
+
+      .edit {
+        cursor: pointer;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form action="/profile" method="post" id="profileinput">
+      <div class="form-row">
+        <label>Name</label>
+        <span class="edit">✏️</span>
+        <input type="text" name="name" value="<%= user.name %>" />
+      </div>
+
+      <div class="form-row">
+        <label>Primary Email</label>
+        <span class="edit">✏️</span>
+        <input type="text" name="email" value="<%= user.email %>" readonly />
+      </div>
+
+      <div class="form-row">
+        <label>Alernate Email</label>
+        <span class="edit">✏️</span>
+        <input
+          type="text"
+          name="alternateEmail"
+          value="<%= user.alternateEmail %>"
+        />
+      </div>
+
+      <div class="form-row">
+        <label>Contact no</label>
+        <span class="edit">✏️</span>
+        <input type="text" name="contact" value="<%= user.contact %>" />
+      </div>
+
+      <div class="form-row">
+        <label>Address</label>
+        <span></span>
+        <textarea name="address"><%= user.address %></textarea>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

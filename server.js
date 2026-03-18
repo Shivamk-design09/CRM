@@ -1,20 +1,19 @@
-const express = require('express')
+const express = require("express");
 const mongoose = require('mongoose')
 const app = express()
 const User = require('./models/usermodel')
-const Admin = require('./models/adminmodel')
 const bodyparser = require('body-parser')
-const session = require('express-session')
+const session = require("express-session");
 const fs = require('fs')
 const ejs = require('ejs')
 const { MongoClient } = require("mongodb");
-
+const { ObjectId } = require("mongodb")
 const url = "mongodb://localhost:27017";
 const client = new MongoClient(url);
 
-let db 
- 
-async function conntectdb (){
+let db
+
+async function conntectdb() {
   await client.connect()
   db = client.db("CRM")
 }
@@ -228,8 +227,8 @@ app.post('/changePassword', async (req, res) => {
       return res.send('User not found')
     }
 
-    if (password === confPassword) {
-      return res.send('passwod did not match')
+    if (newPassword === confPassword) {
+      return res.send('password did not match')
     }
 
     // old password check
@@ -328,40 +327,104 @@ app.get("/adminlogin", (req, res) => {
   res.render("adminlogin")
 })
 
-
-
-
-
 app.post("/adminlogin", async (req, res) => {
   const { email, password } = req.body
-
   try {
     const admin = await db.collection("admin").findOne({ email })
+
     if (!admin) {
       return res.send("Admin not found")
     }
 
     if (admin.password !== password) {
-      return res.send("admin password did not match")
+      return res.send("Passwor is incorrect")
     }
 
-    res.session.admin = admin._id
+    req.session.adminId = admin._id
     res.redirect("/admin/home")
+
   } catch (err) {
     console.log("Error", err)
-    res.status(500).send("server error")
   }
 })
 
-
-
-
-app.get("/admin/Home",(req,res)=>{
-   res.render('adminlayout', {
+app.get("/admin/Home", (req, res) => {
+  res.render('adminlayout', {
     body: require('fs').readFileSync('./views/dashboard.ejs', 'utf8'),
   })
 })
 
+
+app.get("/admin/changePassword", (req, res) => {
+  res.render('adminlayout', {
+    body: require('fs').readFileSync('./views/adminChangePassword.ejs', 'utf8'),
+  })
+})
+
+app.post("/admin/changePassword", async (req, res) => {
+  const { password, newpassword, confpassword } = req.body
+
+  try {
+    const admin = await db.collection("admin").findOne({
+      _id: new ObjectId(req.session.adminId)
+    })
+
+    if (!admin) {
+      return res.send("admin not found")
+    }
+
+    if (admin.password !== password) {
+      return res.send("Current password did not match")
+    }
+
+    if (newpassword !== confpassword) {
+      return res.send("password did not match")
+    }
+
+    await db.collection("admin").updateOne(
+      { _id: new ObjectId(req.session.adminId) },
+      { $set: { password: newpassword } }
+    )
+
+    res.send(`
+      <script>
+        alert("Password Change Successfully");
+        window.location.href="/admin/changePassword";
+      </script>
+    `)
+
+  } catch (err) {
+    console.log("Error", err)
+  }
+})
+
+
+app.get("/admin/Users", async (req, res) => {
+  try {
+    const users = await db.collection("users").find().toArray()
+
+    const body = ejs.render(fs.readFileSync("./views/adminUsers.ejs", "utf-8"), { users })
+
+    res.render("adminlayout", { body })
+
+  } catch (err) {
+    console.log("Error", err)
+  }
+})
+
+app.get("/admin/user/edit/:userId", async (req, res) => {
+  try {
+  const user = await User.findById(req.params.userId)
+    if (!user) {
+      return res.send("user did not found")
+    }
+    const profilebody = ejs.render(fs.readFileSync("./views/adminUserEdit.ejs", "utf-8"), { user })
+    res.render("adminlayout", { body:profilebody })
+  } catch (err) {
+    console.log("Error", err)
+  }
+
+})
 
 
 

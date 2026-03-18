@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+  .user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  .user-table th, .user-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .user-table th {
+    background-color: #333;
+    color: white;
+  }
+
+  .user-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
+  .edit {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .delete {
+    background-color: red;
+    color: white;
+  }
+</style>
+</head>
+<body>
+    <h1>Manage Access Log</h1>
+
+    <h2>User Management</h2>
+
+<table class="user-table">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Gender</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% users.forEach(user => { %>
+      <tr>
+        <td><%= user.name %></td>
+        <td><%= user.email %></td>
+        <td><%= user.gender %></td>
+
+        <td>
+          <!-- Update Button -->
+          <a href="/admin/user/edit/<%= user._id %>" class="btn edit">Update</a>
+
+          <!-- Delete Button -->
+          <form action="/admin/delete/<%= user._id %>" method="POST" style="display:inline;">
+            <button type="submit" class="btn delete">Delete</button>
+          </form>
+        </td>
+
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+    
+</body>
+</html>
