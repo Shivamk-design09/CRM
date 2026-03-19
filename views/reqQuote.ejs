@@ -1,49 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    <form id="reqQuerry" action="/reqQuote" method="post">
-      <label for="name">Name</label>
-      <input type="text" name="name" id="name" value="<%= user.name %>" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Request Quote</title>
 
-      <label for="email">Email</label>
-      <input
-        type="text"
-        name="email"
-        id="email"
-        readonly
-        value="<%= user.email %>"
-      />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
 
-      <label for="company">Company</label>
-      <input type="text" name="company" />
+    form {
+      background: white;
+      padding: 25px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 350px;
+    }
 
-      <label for="contact">Contact</label>
-      <input
-        type="text"
-        name="contact"
-        id="contact"
-        value="<%= user.contact %>"
-      />
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 14px;
+    }
 
-      <input
-        type="checkbox"
-        name="webDevlopment"
-        id="webDevelopmen"
-        value="web development"
-      />
-      <label for="webDevelopmen">webDevelopmen</label>
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
 
-      <div id="query">
-        <label for="query"> Query</label>
-        <textarea name="query" id="query"></textarea>
-      </div>
+    input:focus,
+    textarea:focus {
+      border-color: #007bff;
+    }
 
-      <button id="submitbtn" type="submit">submit</button>
-    </form>
-  </body>
+    textarea {
+      resize: none;
+      height: 80px;
+    }
+
+    input[readonly] {
+      background-color: #e9ecef;
+    }
+
+    input[type="checkbox"] {
+      margin-top: 15px;
+      margin-right: 5px;
+    }
+
+    #query {
+      margin-top: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="reqQuerry" action="/reqQuote" method="post">
+    
+    <label>Name</label>
+    <input type="text" name="name" value="<%= user.name %>" />
+
+    <label>Email</label>
+    <input type="text" name="email" readonly value="<%= user.email %>" />
+
+    <label>Company</label>
+    <input type="text" name="company" />
+
+    <label>Contact</label>
+    <input type="text" name="contact" value="<%= user.contact %>" />
+
+    <input type="checkbox" name="webDevlopment" value="web development" />
+    <label style="display:inline;">Web Development</label>
+
+    <div id="query">
+      <label>Query</label>
+      <textarea name="query"></textarea>
+    </div>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
 </html>

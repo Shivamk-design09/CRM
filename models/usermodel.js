@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
     },priority: {
         type: String,
         enum: []
-    },
+    },remarks:String,
     description: String,
 }, {timestamps:true})
 
